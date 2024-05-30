@@ -20,6 +20,7 @@ export const getCurrentUserQuery = graphql(`
         content
         imageURL
         author{
+          id
           firstName
           lastName
           email
@@ -44,6 +45,7 @@ export const getUserByIdQuery = graphql(`
         content
         imageURL
         author {
+          id
           email
           firstName
           lastName

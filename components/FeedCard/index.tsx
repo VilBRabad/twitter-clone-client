@@ -6,21 +6,27 @@ import { RiBarChartGroupedFill } from "react-icons/ri";
 import { GoBookmark } from "react-icons/go";
 import { FiUpload } from "react-icons/fi";
 import { Post } from "@/gql/graphql";
+import Link from "next/link";
 
 interface PostDataProps{
     data: Post
 }
 
 const FeedCard: React.FC<PostDataProps> = ({data})=>{
-
     return <div className="">
         <div className="grid grid-cols-12 px-5 py-3 border-b border-white/20 hover:bg-white/5 transition-all">
             <div className="col-span-1">
-                {data.author?.profileImageURL && <Image src={data.author?.profileImageURL} alt="user-image" height={45} width={45} className="rounded-full"/>}
+                <Link href={`${data.author?.id}`}>
+                    {data.author?.profileImageURL && <Image src={data.author?.profileImageURL} alt="user-image" height={45} width={45} className="rounded-full"/>}
+                </Link>
             </div>
             <div className="col-span-11 ml-3">
                 <div className="flex gap-1 items-center">
-                    <h1 className="font-semibold">{data.author?.firstName} {data.author?.lastName}</h1>
+                    <h1 className="font-semibold">
+                        <Link href={`/${data.author?.id}`}>
+                            {data.author?.firstName} {data.author?.lastName}
+                        </Link>
+                    </h1>
                     <p className="text-white/30 text-sm">@{data.author?.email.split("@")[0]}</p>
                 </div>
                 <p className="text-sm mt-2">
