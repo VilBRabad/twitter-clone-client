@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useCurrentUser } from "@/hooks/user";
 import { graphqlClient } from "@/client/api";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { followUserMutation } from "@/graphql/mutation/user";
 
 interface TwitterLayoutProps {
     children: React.ReactNode;
@@ -43,7 +44,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
             verifyUserGoogleTokenQuery,
             { token: googleToken },
         );
-        console.log(data);
+        // console.log(data);
         const verifyGoogleToken = data.verifyGoogleToken;
 
         // console.log(verifyGoogleToken);
@@ -56,6 +57,14 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
         await queryClient.invalidateQueries({ queryKey: ['current-user'] });
         return toast.success("Verified Success")
     }, [queryClient])
+
+
+    const handleFollowButton = useCallback(async(id:string)=>{
+        await graphqlClient.request(followUserMutation, {to: id})
+
+        queryClient.invalidateQueries({queryKey: ['current-user']});
+        toast.success("Followed Successfully")
+    }, [queryClient]);
 
 
     const handleError = () => {
@@ -116,7 +125,9 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                         <div className="h-full flex flex-col justify-between">
                             <div className="relative flex sm:flex-col max-sm:justify-around backdrop-blur-md bg-black/60">
                                 <div className="hidden sm:block text-3xl hover:bg-white/10 transition-all w-fit p-3 rounded-full cursor-pointer">
-                                    <FaXTwitter />
+                                    <Link href={'/'}>
+                                        <FaXTwitter />
+                                    </Link>
                                 </div>
                                 <ul className="flex sm:flex-col sm:gap-1 max-sm:justify-evenly max-sm:overflow-scroll">
                                     {
@@ -139,6 +150,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                             </div>
                             <div className="relative mb-2 hidden sm:block">
                                 {user &&
+                                    <Link href={`${user.id}`}> 
                                     <div className="w-full p-2 flex items-center justify-between rounded-full hover:bg-white/10 cursor-pointer">
                                         <div className="flex">
                                             {
@@ -157,6 +169,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                                         </div>
                                         <IoIosMore size={20} className="hidden lg:block"/>
                                     </div>
+                                    </Link>
                                 }
                             </div>
                         </div>
@@ -168,7 +181,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                             {props.children}
                         </div>
                         <div className="md:col-span-7 w-full relative">
-                            <div className="lg:w-[95%] w-full sticky top-0 pt-2 max-md:flex justify-center">
+                            <div className="lg:w-[95%] w-full h-auto sticky top-0 pt-2 max-md:flex justify-center">
                                 <div className="hidden md:flex items-center px-4 bg-gray-800 rounded-full overflow-hidden">
                                     <FiSearch size={20} />
                                     <input type="text" placeholder="Search" className="w-full outline-0 bg-gray-800 p-3 px-4" />
@@ -196,6 +209,42 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                                     <p className='text-sm mt-4'>#o unlock new features and if eligible, receive a share of ads revenue.</p>
                                     <p className='text-sm mt-4'>#Subscrunlock new features and if eligible, receive a share of ads revenue.</p>
                                 </div>
+                                {
+                                   user && user.recomendUser && user.recomendUser?.length > 0 && 
+                                    <div className="hidden md:block w-[100%] mt-4 border border-white/30 rounded-[1rem] pb-5">
+                                        <h1 className="text-xl font-semibold mb-2 px-5 pt-5">People you may know</h1>
+                                        {user.recomendUser.map(el => (
+                                            <div key={el?.id} className="flex hover:bg-white/10 p-2 rounded-full mx-2 gap-2 mt-1">
+                                                {el?.profileImageURL && 
+                                                    <Link href={`${el.id}`}>
+                                                        <Image 
+                                                            src={el?.profileImageURL} 
+                                                            alt="Profile-image" 
+                                                            height={100} 
+                                                            width={100}
+                                                            className="rounded-full h-12 w-12"
+                                                        />
+                                                    </Link>
+                                                }
+                                                <div className="w-[80%] flex justify-around gap-1">
+                                                    <Link href={`${el?.id}`} className="w-[60%]">
+                                                        <div >
+                                                            <p className="font-semibold truncate">{el?.firstName} {el?.lastName}</p>
+                                                            <p className="text-white/30 text-sm truncate">@{el?.email.split("@")[0]}</p>
+                                                        </div>
+                                                    </Link>
+                                                    <div className="flex items-center">
+                                                        <button 
+                                                            onClick={()=> handleFollowButton(el?.id as string)}
+                                                            className="py-1 px-4 text-sm font-semibold rounded-full text-black bg-white hover:bg-white/90">
+                                                            Follow
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
                                 <div className="hidden md:flex w-full p-4 text-xs text-white/50 flex-wrap gap-1">
                                     <p className="hover:underline mr-2 text-nowrap cursor-pointer">Terms of Service</p>
                                     <p className="hover:underline mr-2 text-nowrap cursor-pointer">Privacy Policy</p>

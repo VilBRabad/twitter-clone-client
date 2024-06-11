@@ -8,35 +8,79 @@ import { RiFileGifLine } from "react-icons/ri";
 import { Post } from '@/gql/graphql';
 import { IoMdRefresh } from 'react-icons/io';
 import { useCallback, useState } from "react";
-import { useCreatePost } from "@/hooks/post";
+import { useCreatePost, useGetAllPosts } from "@/hooks/post";
 import TwitterLayout from "@/components/TwitterLayout";
 import { GetServerSideProps } from "next";
 import { graphqlClient } from "@/client/api";
-import { getAllPostsQuery } from "@/graphql/query/post";
+import { getAllPostsQuery, getPreSingedURLForPostQuery } from "@/graphql/query/post";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 interface HomeProps{
   posts?: Post[];
 }
 
-export default function Home<HomeProps>(props: HomeProps) {
+export default function Home(props: HomeProps) {
   const { user } = useCurrentUser();
-
-  const { mutate } = useCreatePost();
+  const { posts = props.posts as Post[] } = useGetAllPosts();
+  const { mutateAsync } = useCreatePost();
 
   const [content, setContent] = useState("");
+  const [uploadImage, setUploadImage] = useState("");
 
-  const handleCreatePost = useCallback(() => {
-    mutate({
+  const handleCreatePost = useCallback(async() => {
+    await mutateAsync({
       content,
+      imageURL: uploadImage
     });
     setContent("");
-  }, [content, mutate]);
+    setUploadImage("");
+  }, [content, mutateAsync, uploadImage]);
 
+
+  const handleEmojiPanal = ()=>{
+    return "";
+  }
+
+
+  const handleInputChangeFile = useCallback((input: HTMLInputElement)=>{
+    return async(event: Event)=> {
+      event.preventDefault();
+      
+      const file: File | undefined | null = input.files?.item(0);
+      if(!file) return;
+
+      console.log(file);
+
+      // setSelectImage(file);
+
+      const {getPreSignedURLForPost} = await graphqlClient.request(getPreSingedURLForPostQuery, {imageType: file.type});
+
+      if(getPreSignedURLForPost){
+        toast.loading("Uploading...", {id: "2"});
+        await axios.put(getPreSignedURLForPost, file, {
+          headers: {
+            "Content-Type": file.type,
+          }
+        })
+
+        const url = new URL(getPreSignedURLForPost);
+
+        const imageUrl = `${url.origin}${url.pathname}`;
+        setUploadImage(imageUrl);
+        toast.success("Upload Completed", {id: "2"});
+      }
+    }
+  }, [])
 
   const handleSelectImage = useCallback(() => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
+
+    const handlerFn = handleInputChangeFile(input);
+    input.addEventListener("change", handlerFn);
+
     input.click();
   }, []);
 
@@ -63,7 +107,7 @@ export default function Home<HomeProps>(props: HomeProps) {
           </div>
         </div>
         {
-          props.posts?.length !== 0 ?
+          posts?.length !== 0 ?
             <>
               {user &&
                 <div>
@@ -85,13 +129,23 @@ export default function Home<HomeProps>(props: HomeProps) {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                       ></textarea>
+                      {
+                        uploadImage &&
+                          <Image
+                            src={uploadImage}
+                            alt="upload image"
+                            width={1000}
+                            height={1000}
+                            className="w-full mb-2 rounded-md"
+                          />
+                      }
                       <div className="flex items-center justify-between">
                         <div className="flex">
                           <div className="hover:bg-[#1A8CD8]/10 transition-all p-2 rounded-full cursor-pointer">
                             <FiImage size={19} onClick={handleSelectImage} className="text-[#1A8CD8]" />
                           </div>
                           <div className="hover:bg-[#1A8CD8]/10 transition-all p-2 rounded-full cursor-pointer">
-                            <BsEmojiSmile size={19} className="text-[#1A8CD8]" />
+                            <BsEmojiSmile onClick={handleEmojiPanal} size={19} className="text-[#1A8CD8]" />
                           </div>
                           <div className="hover:bg-[#1A8CD8]/10 transition-all p-2 rounded-full cursor-pointer">
                             <RiFileGifLine size={19} className="text-[#1A8CD8]" />
@@ -106,7 +160,7 @@ export default function Home<HomeProps>(props: HomeProps) {
                 </div>}
               <div>
                 {
-                  props.posts?.map((post: Post) => post ? <FeedCard key={post?.id} data={post as Post} /> : "")
+                  posts?.map((post) => post ? <FeedCard key={post?.id} data={post as Post} /> : "")
                 }
               </div>
             </>
@@ -124,16 +178,21 @@ export default function Home<HomeProps>(props: HomeProps) {
 }
 
 
-export const getServerSideProps:GetServerSideProps<HomeProps> = async(context)=>{
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+  context
+) => {
+
   const allPosts = await graphqlClient.request(getAllPostsQuery);
-
-  // if(!allPosts?.getAllPosts) return {notFound: true, props: {posts: null}};
-
-  return {
-    props:{
-      posts: allPosts?.getAllPosts as Post[],
+  if(!allPosts) return{
+    props: {
+      posts: [],
     }
   }
-}
+  return {
+    props: {
+      posts: allPosts.getAllPosts as Post[],
+    },
+  };
+};
 
 

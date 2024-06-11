@@ -7,12 +7,14 @@ import { GoBookmark } from "react-icons/go";
 import { FiUpload } from "react-icons/fi";
 import { Post } from "@/gql/graphql";
 import Link from "next/link";
+// import { useCurrentUser } from "@/hooks/user";
 
 interface PostDataProps{
     data: Post
 }
 
 const FeedCard: React.FC<PostDataProps> = ({data})=>{
+
     return <div className="">
         <div className="grid grid-cols-12 px-5 py-3 border-b border-white/20 hover:bg-white/5 transition-all">
             <div className="col-span-1">
@@ -22,11 +24,11 @@ const FeedCard: React.FC<PostDataProps> = ({data})=>{
             </div>
             <div className="col-span-11 ml-3">
                 <div className="flex gap-1 items-center">
-                    <h1 className="font-semibold">
+                    <div className="font-semibold">
                         <Link href={`/${data.author?.id}`}>
                             {data.author?.firstName} {data.author?.lastName}
                         </Link>
-                    </h1>
+                    </div>
                     <p className="text-white/30 text-sm">@{data.author?.email.split("@")[0]}</p>
                 </div>
                 <p className="text-sm mt-2">
@@ -36,8 +38,9 @@ const FeedCard: React.FC<PostDataProps> = ({data})=>{
                     <Image 
                         src={data.imageURL}
                         alt="post-image"
-                        width={100}
-                        height={100}
+                        width={1000}
+                        height={1000}
+                        className="w-full mt-3 rounded-lg"
                     />
                 }
                 <div className="flex w-full justify-between mt-2">

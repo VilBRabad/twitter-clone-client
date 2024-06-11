@@ -2,7 +2,7 @@
   "name": "twitter-client",
   "version": "0.1.0",
   "private": true,
-  "scripts": { 
+  "scripts": {
     "dev": "concurrently \"yarn run codegen\" next dev",
     "build": "next build",
     "start": "next start",
@@ -13,6 +13,7 @@
     "@react-oauth/google": "^0.12.1",
     "@tanstack/react-query": "^5.40.0",
     "@tanstack/react-query-devtools": "^5.40.0",
+    "axios": "^1.7.2",
     "graphql": "^16.8.1",
     "graphql-request": "^7.0.1",
     "next": "14.2.3",

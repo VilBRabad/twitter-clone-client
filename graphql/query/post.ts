@@ -16,3 +16,10 @@ export const getAllPostsQuery = graphql(`
         }
     }
 `)
+
+
+export const getPreSingedURLForPostQuery = graphql(`
+    query GetPreSignedURL($imageType: String!) {
+        getPreSignedURLForPost(imageType: $imageType)
+    }
+`)
