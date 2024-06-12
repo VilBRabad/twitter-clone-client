@@ -203,18 +203,18 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                                     <p className='text-sm'>Subscribe to unlock new features and if eligible, receive a share of ads revenue.</p>
                                     <button className="bg-[#1A8CD8] hover:bg-[#1A8CD8]/90 transition-all p-2 px-6 mt-2 rounded-full text-sm font-semibold">Subscribe</button>
                                 </div>
-                                <div className="hidden md:block w-[100%] mt-4 border border-white/30 p-5 rounded-[1rem]">
+                                {/* <div className="hidden md:block w-[100%] mt-4 border border-white/30 p-5 rounded-[1rem]">
                                     <h1 className="text-xl font-semibold mb-2">#What's Happening</h1>
                                     <p className='text-sm'>#Subscribe to unlock new features and if eligible, receive a share of ads revenue.</p>
                                     <p className='text-sm mt-4'>#o unlock new features and if eligible, receive a share of ads revenue.</p>
                                     <p className='text-sm mt-4'>#Subscrunlock new features and if eligible, receive a share of ads revenue.</p>
-                                </div>
+                                </div> */}
                                 {
                                    user && user.recomendUser && user.recomendUser?.length > 0 && 
                                     <div className="hidden md:block w-[100%] mt-4 border border-white/30 rounded-[1rem] pb-5">
                                         <h1 className="text-xl font-semibold mb-2 px-5 pt-5">People you may know</h1>
                                         {user.recomendUser.map(el => (
-                                            <div key={el?.id} className="flex hover:bg-white/10 p-2 rounded-full mx-2 gap-2 mt-1">
+                                            <div key={el?.id} className="flex transition hover:bg-white/10 p-2 rounded-full mx-2 gap-2 mt-1">
                                                 {el?.profileImageURL && 
                                                     <Link href={`${el.id}`}>
                                                         <Image 
@@ -236,7 +236,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
                                                     <div className="flex items-center">
                                                         <button 
                                                             onClick={()=> handleFollowButton(el?.id as string)}
-                                                            className="py-1 px-4 text-sm font-semibold rounded-full text-black bg-white hover:bg-white/90">
+                                                            className="py-1 px-4 text-sm font-semibold rounded-full text-black bg-white hover:bg-white/20 transition hover:text-white">
                                                             Follow
                                                         </button>
                                                     </div>

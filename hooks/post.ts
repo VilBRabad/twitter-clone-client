@@ -12,12 +12,13 @@ export const useCreatePost = ()=>{
     const mutation = useMutation({
         mutationFn: (payload: CreatePostData)=> graphqlClient.request(createPostMutation, {payload}),
         onMutate: ()=> toast.loading("Creating Post", {id: "1"}),
+        onError: ()=> toast.error("Please wait....", {id: "1"}),
         onSuccess: ()=> {
             queryClient.invalidateQueries({queryKey: ["all-posts"]});
             toast.success("Created successfully", {id: "1"});
         }
     })
-
+    
     return mutation;
 }
 

@@ -29,10 +29,14 @@ export default function Home(props: HomeProps) {
   const [uploadImage, setUploadImage] = useState("");
 
   const handleCreatePost = useCallback(async() => {
-    await mutateAsync({
-      content,
-      imageURL: uploadImage
-    });
+    try {
+      await mutateAsync({
+        content,
+        imageURL: uploadImage
+      });
+    } catch (error) {
+      console.log(error);
+    }
     setContent("");
     setUploadImage("");
   }, [content, mutateAsync, uploadImage]);
