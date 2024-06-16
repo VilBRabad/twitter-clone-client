@@ -1,6 +1,6 @@
 import { graphqlClient } from "@/client/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getAllPostsQuery } from "@/graphql/query/post"
+import { getAllPostsQuery, getPostsOfFollowingsQuery } from "@/graphql/query/post"
 import { createPostMutation } from "@/graphql/mutation/post"
 import { CreatePostData } from "@/gql/graphql"
 import toast from "react-hot-toast"
@@ -30,4 +30,13 @@ export const useGetAllPosts = ()=>{
     })
 
     return {...query, posts: query.data?.getAllPosts}
+}
+
+export const useGetPostsOfFollowings = ()=>{
+    const query = useQuery({
+        queryKey: ["all-posts-following"],
+        queryFn: async()=> await graphqlClient.request(getPostsOfFollowingsQuery)
+    })
+
+    return {...query, posts: query.data?.getPostsOfFollowings};
 }

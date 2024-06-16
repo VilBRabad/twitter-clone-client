@@ -23,3 +23,20 @@ export const getPreSingedURLForPostQuery = graphql(`
         getPreSignedURLForPost(imageType: $imageType)
     }
 `)
+
+export const getPostsOfFollowingsQuery = graphql(`
+    query GetPostsOfFollowings{
+        getPostsOfFollowings {
+            id
+            content
+            imageURL
+            author {
+                id
+                firstName
+                lastName
+                email
+                profileImageURL
+            }
+        }
+    } 
+`)
